@@ -59,7 +59,7 @@ def _make_stroke_mask(
     Returns stroke_mask: white where font strokes are (slightly dilated).
     Dilation is kept small so the stroke shape stays natural.
     """
-    target_px = int(width * 0.60)
+    target_px = int(width * 0.70)
     font_size = _binary_search_font_size(text, target_px)
     font = _get_font(font_size, text)
 
