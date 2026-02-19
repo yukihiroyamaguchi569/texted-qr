@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Texted QR</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header>
+    <h1>Texted QR</h1>
+    <p>QRコードのドットに文字を浮かび上がらせて生成</p>
+  </header>
+
+  <main class="layout">
+    <!-- Left: Form -->
+    <section class="card form-panel">
+      <form method="POST" action="/generate">
+        <div class="field">
+          <label for="url">URL</label>
+          <input
+            type="url"
+            id="url"
+            name="url"
+            placeholder="https://example.com"
+            value="{{ prev_url or '' }}"
+            required
+          >
+        </div>
+
+        <div class="field">
+          <label for="text">テキスト <span class="hint">（20文字以内推奨）</span></label>
+          <input
+            type="text"
+            id="text"
+            name="text"
+            placeholder="HELLO"
+            maxlength="20"
+            value="{{ prev_text or '' }}"
+            required
+          >
+        </div>
+
+        <div class="field">
+          <label>テキスト配置</label>
+          <div class="radio-group">
+            {% for val, label in [('center', '中央'), ('top', '上'), ('bottom', '下')] %}
+            <label class="radio-label">
+              <input
+                type="radio"
+                name="position"
+                value="{{ val }}"
+                {% if (prev_position or 'center') == val %}checked{% endif %}
+              >
+              {{ label }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="accent_color">アクセントカラー</label>
+          <div class="color-row">
+            <input
+              type="color"
+              id="accent_color"
+              name="accent_color"
+              value="{{ prev_accent or '#DC3232' }}"
+            >
+            <span id="color-val">{{ prev_accent or '#DC3232' }}</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">生成</button>
+      </form>
+
+      {% if img_b64 %}
+      <form method="POST" action="/download" class="download-form">
+        <input type="hidden" name="url" value="{{ prev_url }}">
+        <input type="hidden" name="text" value="{{ prev_text }}">
+        <input type="hidden" name="position" value="{{ prev_position }}">
+        <input type="hidden" name="accent_color" value="{{ prev_accent }}">
+        <button type="submit" class="btn btn-secondary">PNG ダウンロード</button>
+      </form>
+      {% endif %}
+    </section>
+
+    <!-- Right: Preview -->
+    <section class="card preview-panel">
+      {% if error %}
+        <div class="error">{{ error }}</div>
+      {% elif img_b64 %}
+        <img
+          src="data:image/png;base64,{{ img_b64 }}"
+          alt="Generated QR Code"
+          class="qr-preview"
+        >
+        <p class="scan-hint">スマホカメラでスキャンできます</p>
+      {% else %}
+        <div class="placeholder">
+          <div class="placeholder-icon">&#x25A6;</div>
+          <p>URLとテキストを入力して「生成」を押してください</p>
+        </div>
+      {% endif %}
+    </section>
+  </main>
+
+  <script>
+    const colorInput = document.getElementById('accent_color');
+    const colorVal = document.getElementById('color-val');
+    if (colorInput && colorVal) {
+      colorInput.addEventListener('input', () => {
+        colorVal.textContent = colorInput.value;
+      });
+    }
+  </script>
+</body>
+</html>

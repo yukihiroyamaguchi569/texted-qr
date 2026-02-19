@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3:*)",
+      "Bash(source:*)",
+      "Bash(pip install:*)",
+      "Bash(xargs fc-list:*)",
+      "Bash(python -c:*)",
+      "Bash(lsof:*)",
+      "Bash(open:*)"
+    ]
+  }
+}
