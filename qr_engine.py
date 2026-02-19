@@ -6,8 +6,33 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 FONT_PATH = os.path.join(os.path.dirname(__file__), "fonts", "NotoSans-Bold.ttf")
 
+# Japanese-capable fonts, tried in order
+_CJK_FONT_CANDIDATES = [
+    os.path.join(os.path.dirname(__file__), "fonts", "NotoSansJP-Bold.otf"),
+    "/System/Library/Fonts/ヒラギノ角ゴシック W6.ttc",
+    "/System/Library/Fonts/ヒラギノ角ゴ Pro W6.otf",
+]
 
-def _get_font(size: int) -> ImageFont.FreeTypeFont:
+
+def _needs_cjk(text: str) -> bool:
+    """Return True if text contains any CJK / kana / hangul codepoints."""
+    for ch in text:
+        cp = ord(ch)
+        if (
+            0x3000 <= cp <= 0x9FFF    # CJK unified, hiragana, katakana, …
+            or 0xAC00 <= cp <= 0xD7AF  # hangul
+            or 0xF900 <= cp <= 0xFAFF  # CJK compatibility
+            or 0x20000 <= cp <= 0x2A6DF
+        ):
+            return True
+    return False
+
+
+def _get_font(size: int, text: str = "") -> ImageFont.FreeTypeFont:
+    if _needs_cjk(text):
+        for path in _CJK_FONT_CANDIDATES:
+            if os.path.exists(path):
+                return ImageFont.truetype(path, size)
     return ImageFont.truetype(FONT_PATH, size)
 
 
@@ -16,7 +41,7 @@ def _binary_search_font_size(text: str, target_px: int) -> int:
     best = lo
     while lo <= hi:
         mid = (lo + hi) // 2
-        font = _get_font(mid)
+        font = _get_font(mid, text)
         bbox = font.getbbox(text)
         w = bbox[2] - bbox[0]
         if w <= target_px:
@@ -36,7 +61,7 @@ def _make_stroke_mask(
     """
     target_px = int(width * 0.60)
     font_size = _binary_search_font_size(text, target_px)
-    font = _get_font(font_size)
+    font = _get_font(font_size, text)
 
     bbox = font.getbbox(text)
     text_w = bbox[2] - bbox[0]
@@ -55,7 +80,7 @@ def _make_stroke_mask(
 
     stroke_mask = Image.new("L", (width, height), 0)
     ImageDraw.Draw(stroke_mask).text((x, y), text, fill=255, font=font)
-    dil = max(3, module_size // 4)
+    dil = max(3, module_size // 4) | 1  # MaxFilter requires odd size
     stroke_mask = stroke_mask.filter(ImageFilter.MaxFilter(size=dil))
 
     return stroke_mask
