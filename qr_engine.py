@@ -132,7 +132,7 @@ def generate_qr_image(
             in_stroke = stroke_mask.getpixel((cx, cy)) > 128
 
             if module_on:
-                color = accent_color if in_stroke else (0, 0, 0)
+                color = accent_color if in_stroke else (140, 140, 140)
                 draw.rounded_rectangle([x0, y0, x1, y1], radius=radius, fill=color)
             elif in_stroke:
                 # txt_light: tinted just enough to show the font silhouette
