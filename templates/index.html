@@ -59,6 +59,23 @@
         </div>
 
         <div class="field">
+          <label>スキャンモード</label>
+          <div class="radio-group">
+            {% for val, label in [('safe', '安全'), ('normal', '通常'), ('danger', '危険')] %}
+            <label class="radio-label">
+              <input
+                type="radio"
+                name="mode"
+                value="{{ val }}"
+                {% if (prev_mode or 'normal') == val %}checked{% endif %}
+              >
+              {{ label }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="field">
           <label for="accent_color">アクセントカラー</label>
           <div class="color-row">
             <input
@@ -80,6 +97,7 @@
         <input type="hidden" name="text" value="{{ prev_text }}">
         <input type="hidden" name="position" value="{{ prev_position }}">
         <input type="hidden" name="accent_color" value="{{ prev_accent }}">
+        <input type="hidden" name="mode" value="{{ prev_mode or 'normal' }}">
         <button type="submit" class="btn btn-secondary">PNG ダウンロード</button>
       </form>
       {% endif %}

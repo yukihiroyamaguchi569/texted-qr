@@ -25,6 +25,7 @@ def generate():
     text = request.form.get("text", "").strip()
     position = request.form.get("position", "center")
     accent_hex = request.form.get("accent_color", "#DC3232")
+    mode = request.form.get("mode", "normal")
 
     error = None
     img_b64 = None
@@ -36,7 +37,7 @@ def generate():
     else:
         try:
             accent_rgb = hex_to_rgb(accent_hex)
-            png_bytes = generate_qr_image(url, text, accent_rgb, position)
+            png_bytes = generate_qr_image(url, text, accent_rgb, position, mode)
             img_b64 = base64.b64encode(png_bytes).decode("utf-8")
         except Exception as e:
             error = f"生成エラー: {e}"
@@ -49,6 +50,7 @@ def generate():
         prev_text=text,
         prev_position=position,
         prev_accent=accent_hex,
+        prev_mode=mode,
     )
 
 
@@ -58,9 +60,10 @@ def download():
     text = request.form.get("text", "").strip()
     position = request.form.get("position", "center")
     accent_hex = request.form.get("accent_color", "#DC3232")
+    mode = request.form.get("mode", "normal")
 
     accent_rgb = hex_to_rgb(accent_hex)
-    png_bytes = generate_qr_image(url, text, accent_rgb, position)
+    png_bytes = generate_qr_image(url, text, accent_rgb, position, mode)
 
     return send_file(
         io.BytesIO(png_bytes),

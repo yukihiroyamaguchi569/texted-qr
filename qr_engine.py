@@ -86,11 +86,19 @@ def _make_stroke_mask(
     return stroke_mask
 
 
+BG_DARKNESS = {
+    "safe":   125,
+    "normal": 160,
+    "danger": 220,
+}
+
+
 def generate_qr_image(
     url: str,
     text: str,
     accent_color: tuple[int, int, int] = (220, 50, 50),
     position: str = "center",
+    mode: str = "normal",
 ) -> bytes:
     """
     Generate a QR code PNG where the given text floats inside the dot pattern.
@@ -132,7 +140,8 @@ def generate_qr_image(
             in_stroke = stroke_mask.getpixel((cx, cy)) > 128
 
             if module_on:
-                color = accent_color if in_stroke else (140, 140, 140)
+                bg_v = BG_DARKNESS.get(mode, 160)
+                color = accent_color if in_stroke else (bg_v, bg_v, bg_v)
                 draw.rounded_rectangle([x0, y0, x1, y1], radius=radius, fill=color)
             elif in_stroke:
                 # txt_light: tinted just enough to show the font silhouette
