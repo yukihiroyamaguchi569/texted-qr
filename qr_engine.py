@@ -99,6 +99,7 @@ def generate_qr_image(
     accent_color: tuple[int, int, int] = (220, 50, 50),
     position: str = "center",
     mode: str = "normal",
+    qr_version: int | None = None,
 ) -> bytes:
     """
     Generate a QR code PNG where the given text floats inside the dot pattern.
@@ -110,9 +111,9 @@ def generate_qr_image(
     - OFF + not stroke → bg_light  = white (skip, already background)
     """
     # --- QR matrix ---
-    qr = qrcode.QRCode(error_correction=ERROR_CORRECT_H, box_size=1, border=4)
+    qr = qrcode.QRCode(error_correction=ERROR_CORRECT_H, box_size=1, border=4, version=qr_version)
     qr.add_data(url)
-    qr.make(fit=True)
+    qr.make(fit=True if qr_version is None else False)
 
     matrix = qr.get_matrix()
     total_modules = len(matrix)
@@ -150,4 +151,4 @@ def generate_qr_image(
     buf = io.BytesIO()
     img.save(buf, format="PNG")
     buf.seek(0)
-    return buf.read()
+    return buf.read(), qr.version

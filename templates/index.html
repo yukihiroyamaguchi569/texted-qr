@@ -59,6 +59,23 @@
         </div>
 
         <div class="field">
+          <label>ドット数（QRバージョン）</label>
+          <div class="radio-group">
+            {% for val, label in [('auto', '自動'), ('5', 'V5 (37×37)'), ('10', 'V10 (57×57)'), ('20', 'V20 (97×97)')] %}
+            <label class="radio-label">
+              <input
+                type="radio"
+                name="qr_version"
+                value="{{ val }}"
+                {% if (prev_qr_version or 'auto') == val %}checked{% endif %}
+              >
+              {{ label }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="field">
           <label>スキャンモード</label>
           <div class="radio-group">
             {% for val, label in [('safe', '安全'), ('normal', '通常'), ('danger', '危険')] %}
@@ -98,6 +115,7 @@
         <input type="hidden" name="position" value="{{ prev_position }}">
         <input type="hidden" name="accent_color" value="{{ prev_accent }}">
         <input type="hidden" name="mode" value="{{ prev_mode or 'normal' }}">
+        <input type="hidden" name="qr_version" value="{{ prev_qr_version or 'auto' }}">
         <button type="submit" class="btn btn-secondary">PNG ダウンロード</button>
       </form>
       {% endif %}
@@ -114,6 +132,9 @@
           class="qr-preview"
         >
         <p class="scan-hint">スマホカメラでスキャンできます</p>
+        {% if used_version %}
+        <p class="version-hint">QR バージョン {{ used_version }}（{{ (used_version * 4 + 17) }}×{{ (used_version * 4 + 17) }} モジュール）</p>
+        {% endif %}
       {% else %}
         <div class="placeholder">
           <div class="placeholder-icon">&#x25A6;</div>

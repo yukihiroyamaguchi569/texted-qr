@@ -26,9 +26,12 @@ def generate():
     position = request.form.get("position", "center")
     accent_hex = request.form.get("accent_color", "#DC3232")
     mode = request.form.get("mode", "normal")
+    qr_version_str = request.form.get("qr_version", "auto")
+    qr_version = int(qr_version_str) if qr_version_str != "auto" else None
 
     error = None
     img_b64 = None
+    used_version = None
 
     if not url:
         error = "URL を入力してください。"
@@ -37,7 +40,7 @@ def generate():
     else:
         try:
             accent_rgb = hex_to_rgb(accent_hex)
-            png_bytes = generate_qr_image(url, text, accent_rgb, position, mode)
+            png_bytes, used_version = generate_qr_image(url, text, accent_rgb, position, mode, qr_version)
             img_b64 = base64.b64encode(png_bytes).decode("utf-8")
         except Exception as e:
             error = f"生成エラー: {e}"
@@ -51,6 +54,8 @@ def generate():
         prev_position=position,
         prev_accent=accent_hex,
         prev_mode=mode,
+        prev_qr_version=qr_version_str,
+        used_version=used_version,
     )
 
 
@@ -61,9 +66,11 @@ def download():
     position = request.form.get("position", "center")
     accent_hex = request.form.get("accent_color", "#DC3232")
     mode = request.form.get("mode", "normal")
+    qr_version_str = request.form.get("qr_version", "auto")
+    qr_version = int(qr_version_str) if qr_version_str != "auto" else None
 
     accent_rgb = hex_to_rgb(accent_hex)
-    png_bytes = generate_qr_image(url, text, accent_rgb, position, mode)
+    png_bytes, _ = generate_qr_image(url, text, accent_rgb, position, mode, qr_version)
 
     return send_file(
         io.BytesIO(png_bytes),
