@@ -8,7 +8,9 @@
       "Bash(python -c:*)",
       "Bash(lsof:*)",
       "Bash(open:*)",
-      "Bash(xargs:*)"
+      "Bash(xargs:*)",
+      "Bash(git remote:*)",
+      "Bash(git add:*)"
     ]
   }
 }
